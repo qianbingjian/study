@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div id="myDiv" class="classA"></div>
+
+  <script>
+    // 模拟操作class
+    function MyClassList(dom) {
+      console.log(this === dom)
+      Object.defineProperty(this, 'value', {
+        set:function(v) {
+          dom.className = v
+        }
+      })
+    }
+
+    MyClassList.prototype = {
+      // constructor: MyClassList,
+      add: function (v) {
+        if (this.contains(v)) return this;
+        [].push.call(this,v)
+        this.value = [].join.call(this, ' ')
+        return this
+      },
+      remove: function(v) {
+        for (let index = 0; index < this.length; index++) {
+          if (v === this[index]){
+            [].splice.call(this, index, 1)
+            this.value = [].join.call(this, ' ')
+          }
+        }
+        return this
+      },
+      contains: function (v) {
+       return [].includes.call(this,v)
+      },
+      toggle: function (v) {
+       this.contains(v) ? this.remove(v) : this.add(v)
+       return this
+      }
+    }
+    Object.defineProperty(MyClassList.prototype, 'constructor', {
+      enumerable: false,
+      value: MyClassList
+    })
+    Object.defineProperty(HTMLElement.prototype, 'neClassList', {
+      get: function () {
+        if (!this.__dtl__){
+          console.log(typeof this.className)
+          this.__dtl__ = this.className.split(' ')
+          this.__dtl__.__proto__ = new MyClassList(this)
+        }
+        return this.__dtl__
+      }
+    })
+    myDiv.neClassList.add('classB')
+  </script>
+</body>
+</html>
